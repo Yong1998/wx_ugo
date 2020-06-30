@@ -1,0 +1,52 @@
+<template>
+  <view>
+    <block wx:for="{{goodsList}}" wx:key="index">
+      <van-card
+        num="{{item.goods_number}}"
+        price="{{item.goods_price}}"
+        title="{{item.goods_name}}"
+        thumb="{{ item.goods_big_logo }}"
+        thumb-link="/pages/goods_detail/main?goods_id={{item.goods_id}}"
+        link-type="redirectTo"
+      />
+      <!-- 分割线 -->
+      <view class="sep_line"></view>
+    </block>
+    <!-- 数据加载完毕后的提示消息 -->
+    <view class="over_line" hidden="{{!isover}}">-------- 没有更多了 --------</view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+import mix from '@/mixins/goods_list.js'
+
+export default class extends wepy.page {
+  config = {
+    // 页面标题
+    navigationBarTitleText: '商品列表',
+    // 上拉触底距离 ,默认 50
+    onReachBottomDistance: 100,
+    // 开启下拉刷新
+    enablePullDownRefresh: true,
+    // 设置下拉刷新窗口的背景色
+    backgroundColor: '#eee'
+  }
+
+  mixins = [mix]
+}
+</script>
+
+<style lang="less" scoped>
+.sep_line {
+  border-top: 1px solid #333;
+}
+.over_line {
+  font-size: 24rpx;
+  text-align: center;
+  height: 60rpx;
+  line-height: 60rpx;
+  color: #ccc;
+}
+</style>

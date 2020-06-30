@@ -1,0 +1,64 @@
+<template>
+  <view>
+    <!-- 搜索框 -->
+    <van-search
+      value="{{ value }}"
+      placeholder="请输入搜索关键词"
+      show-action
+      bind:search="onSearch"
+      bind:cancel="onCancel"
+      bind:change="onChange"
+    ></van-search>
+
+    <!-- 搜索建议区域 -->
+    <van-cell-group wx:if="{{isShowHistory === false}}">
+      <block wx:for="{{suggestList}}" wx:key="index">
+        <van-cell title="{{item.goods_name}}}" @tap="goGoodsdetail({{item.goods_id}})" />
+      </block>
+    </van-cell-group>
+
+    <!-- 搜索历史区域 -->
+    <view wx:else>
+      <view class="history-title">
+        <view class="history-text">搜索历史</view>
+        <van-icon name="delete" @tap="clearTag" />
+      </view>
+      <view class="history-body">
+        <van-tag
+          class="tag"
+          wx:for="{{kwList}}"
+          wx:key="index"
+          @tap="goGoodsList({{item}})"
+        >{{item}}</van-tag>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+// 导入search.js文件
+import mix from '@/mixins/tabs/search.js'
+
+export default class extends wepy.page {
+  mixins = [mix]
+}
+</script>
+
+<style lang="less" scoped>
+.history-title {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 40rpx;
+  .history-text {
+    font-size: 24rpx;
+  }
+}
+.history-body {
+  padding: 0 40rpx;
+  .tag {
+    margin: 10rpx;
+  }
+}
+</style>

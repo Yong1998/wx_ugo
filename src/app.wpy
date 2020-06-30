@@ -1,0 +1,264 @@
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+// 导入baseAPI 封装的函数
+import '@/baseAPI.js'
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/tabs/home',
+      'pages/tabs/cates',
+      'pages/tabs/search',
+      'pages/tabs/cart',
+      'pages/tabs/me',
+      'pages/goods_detail/main',
+      'pages/goods_list',
+      'pages/order'
+    ],
+
+    window: {
+      // 顶部区域三个小圆点的样式
+      backgroundTextStyle: 'dark',
+      // 背景颜色
+      navigationBarBackgroundColor: '#333',
+      // 顶部标题文本
+      navigationBarTitleText: '黑马优购',
+      // 标题字体颜色
+      navigationBarTextStyle: 'white'
+    },
+
+    tabBar: {
+      // 选中字体颜色
+      selectedColor: '#d81e06',
+      list: [
+        {
+          // 页面路径
+          pagePath: 'pages/tabs/home',
+          // 页面标题文字
+          text: '首页',
+          // 页面默认图标路径
+          iconPath: '/assets/icons/home.png',
+          // 页面选中图标路径
+          selectedIconPath: '/assets/icons/home-active.png'
+        },
+        {
+          pagePath: 'pages/tabs/cates',
+          text: '分类',
+          iconPath: '/assets/icons/cates.png',
+          selectedIconPath: '/assets/icons/cates-active.png'
+        },
+        {
+          pagePath: 'pages/tabs/search',
+          text: '搜索',
+          iconPath: '/assets/icons/search.png',
+          selectedIconPath: '/assets/icons/search-active.png'
+        },
+        {
+          pagePath: 'pages/tabs/cart',
+          text: '购物车',
+          iconPath: '/assets/icons/cart.png',
+          selectedIconPath: '/assets/icons/cart-active.png'
+        },
+
+        {
+          pagePath: 'pages/tabs/me',
+          text: '我的',
+          iconPath: '/assets/icons/my.png',
+          selectedIconPath: '/assets/icons/my-active.png'
+        }
+      ]
+    },
+
+    // 注册vantWeapp为全局组件
+    usingComponents: {
+      // 侧边栏组
+      'van-sidebar': './assets/vant-weapp/sidebar/index',
+      'van-sidebar-item': './assets/vant-weapp/sidebar-item/index',
+      // layout布局 组件
+      'van-row': './assets/vant-weapp/row/index',
+      'van-col': './assets/vant-weapp/col/index',
+      // 搜索组件
+      'van-search': './assets/vant-weapp/search/index',
+      // 单元格组件
+      'van-cell': './assets/vant-weapp/cell/index',
+      'van-cell-group': './assets/vant-weapp/cell-group/index',
+      // 图标组件
+      'van-icon': './assets/vant-weapp/icon/index',
+      // 标签组件
+      'van-tag': './assets/vant-weapp/tag/index',
+      // 商品卡片组件
+      'van-card': './assets/vant-weapp/card/index',
+      // 标签页组件
+      'van-tab': './assets/vant-weapp/tab/index',
+      'van-tabs': './assets/vant-weapp/tabs/index',
+      // 把 HTML 代码转换为 WXML 代码的插件
+      wxparse: './assets/wxparse/wxparse',
+      // 商品导航组件
+      'van-goods-action': './assets/vant-weapp/goods-action/index',
+      'van-goods-action-icon': './assets/vant-weapp/goods-action-icon/index',
+      'van-goods-action-button': './assets/vant-weapp/goods-action-button/index',
+      // 步进器
+      'van-stepper': './assets/vant-weapp/stepper/index',
+      // 复选框
+      'van-checkbox': './assets/vant-weapp/checkbox/index',
+      'van-checkbox-group': './assets/vant-weapp/checkbox-group/index',
+      // 滑动单元格组件
+      'van-swipe-cell': './assets/vant-weapp/swipe-cell/index',
+      // 提交订单栏
+      'van-submit-bar': './assets/vant-weapp/submit-bar/index',
+      // 按钮组件
+      'van-button': './assets/vant-weapp/button/index'
+    }
+  }
+  // 专门存储全局共享数据
+  // 通过 this.$parent.globalData可以拿到全局数据
+  globalData = {
+    // 已加入购物车商品数据
+    cart: [],
+    // 当前 购物车商品数量
+    total: 0
+  }
+
+  // 添加商品数据至购物车
+  addGoodsToCart(goods) {
+    console.log(goods)
+    const i = this.globalData.cart.findIndex(x => x.id === goods.goods_id)
+    if (i !== -1) {
+      this.globalData.cart[i].count++
+      this.saveCartToStorage()
+      return
+    }
+
+    // 梳理需要加入购物车的商品信息
+    const info = {
+      // 商品id：
+      id: goods.goods_id,
+      // 名称
+      name: goods.goods_name,
+      // 图片
+      pic: goods.goods_small_logo,
+      // 价格
+      price: goods.goods_price,
+      // 数量
+      count: 1,
+      // 是否选中 true
+      isCheck: true
+    }
+    this.globalData.cart.push(info)
+    this.saveCartToStorage()
+    console.log(this.globalData.cart)
+  }
+  // 更新商品数量
+  upDataGoodsCount(id, count) {
+    const i = this.globalData.cart.findIndex(x => x.id === id)
+
+    if (i !== -1) {
+      this.globalData.cart[i].count = count
+      // 将最新商品信息存储至stroage
+      this.saveCartToStorage()
+    }
+  }
+  // 更新商品选中状态
+  upDataGoodsStatus(id, status) {
+    const i = this.globalData.cart.findIndex(x => x.id === id)
+
+    if (i !== -1) {
+      this.globalData.cart[i].isCheck = status
+      this.saveCartToStorage()
+    }
+  }
+  // 根据id删除商品
+  removeGoodsByid(id) {
+    const i = this.globalData.cart.findIndex(x => x.id === id)
+
+    if (i !== -1) {
+      this.globalData.cart.splice(i, 1)
+      this.saveCartToStorage()
+    }
+  }
+  // 点击全选 更新商品选中状态
+  fullCheckedStatus(status) {
+    this.globalData.cart.forEach(x => {
+      x.isCheck = status
+    })
+    // 将最新商品信息存储至stroage
+    this.saveCartToStorage()
+  }
+  // 持久化存储购物车商品数据
+  saveCartToStorage() {
+    wepy.setStorageSync('cart', this.globalData.cart)
+    this.renderCartBadge()
+  }
+  // 渲染购物车的计数徽章
+  async renderCartBadge() {
+    let c = 0
+    this.globalData.cart.forEach(x => {
+      if (x.isCheck) {
+        c += x.count
+      }
+    })
+    // 更新 购物车全部商品数量
+    this.globalData.total = c
+    // 设置 tabBar的徽章API
+    // 因为该API在页面一开始就渲染 而不是tabBar的页面会出现报错
+    // 所以截取该报错
+    const res = await wepy
+      .setTabBarBadge({
+        // 需要渲染的导航页面
+        index: 3,
+        // 渲染的个数
+        text: c + ''
+      })
+      .catch(err => err)
+    // 设置 tabBar 的徽章失败就ok了
+    if (res.errMsg !== 'setTabBarBadge:ok') {
+    }
+  }
+
+  constructor() {
+    super()
+    this.use('requestfix')
+
+    // 为异步APi 启动 pormise 功能 这样异步API调用的结果返回的使promise
+    this.use('promisify')
+
+    //拦截request请求
+    this.intercept('request', {
+      //发出请求时的回调函数
+      config(p) {
+        // 显示loading
+        wepy.showLoading({
+          title: '数据加载中...'
+        })
+        //必须返回OBJECT参数对象，否则无法发送请求到服务端
+        return p
+      },
+      //请求成功后的回调函数
+      success(p) {
+        //可以在这里对收到的响应数据对象进行加工处理
+        return p
+      },
+      //请求失败后的回调函数
+      fail(p) {
+        //必须返回响应数据对象，否则后续无法对响应数据进行处理
+        return p
+      },
+      //请求完成时的回调函数(请求成功或失败都会被执行)
+      complete(p) {
+        // 请求完成时 隐藏 loading效果
+        wepy.hideLoading()
+      }
+    })
+  }
+
+  onLaunch() {
+    console.log('小程序启动了')
+    // 页面一开始 从storageSync获取最新购物车商品数据
+    this.globalData.cart = wepy.getStorageSync('cart') || []
+    // 渲染 tabBar 徽章
+    this.renderCartBadge()
+  }
+}
+</script>
+<style lang="less"></style>

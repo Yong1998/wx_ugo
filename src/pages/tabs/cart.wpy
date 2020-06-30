@@ -1,0 +1,133 @@
+<template>
+  <view>
+    <!-- 空购物车 -->
+    <view class="empty_cart" wx:if="{{isEmpty}}">
+      <image src="/assets/images/cart_empty@2x.png" />
+      <view>空的购物车~~~</view>
+    </view>
+    <!-- 非空购物车 -->
+    <view class="cart_contaniner" wx:else>
+      <van-cell title="购物车列表" icon="shop-o" />
+      <!-- 购物车列表 -->
+      <block wx:for="{{cart}}" wx:key="id">
+        <van-swipe-cell right-width="{{ 65 }}">
+          <!-- 商品卡片 -->
+          <van-card title="{{item.name}}">
+            <!-- 自定义描述区域 -->
+            <view slot="desc" class="desc">
+              <text class="price">￥{{item.price}}</text>
+              <van-stepper
+                class="count"
+                value="{{ item.count }}"
+                bind:change="countChange"
+                data-id="{{item.id}}"
+              ></van-stepper>
+            </view>
+            <!-- 自定义图片区域 -->
+            <view slot="thumb" class="thumb">
+              <!-- 复选框 -->
+              <van-checkbox
+                checked-color="#d81e06"
+                value="{{item.isCheck}}"
+                bind:change="statusChange"
+                data-id="{{item.id}}"
+              ></van-checkbox>
+              <!-- 图片 -->
+              <image src="{{item.pic}}" />
+            </view>
+          </van-card>
+          <view slot="right" class="close" @tap="close({{item.id}})">删除</view>
+        </van-swipe-cell>
+      </block>
+      <!-- 提交订单栏 -->
+      <!-- 
+        price 单位为分
+      -->
+      <van-submit-bar
+        price="{{ totalPrice }}"
+        button-text="提交订单"
+        bind:submit="submitOrder"
+        tip="{{false}}"
+      >
+        <!-- 全选/反选 的复选框 -->
+        <van-checkbox
+          class="fullCheck"
+          value="{{isFullChecked}}"
+          bind:change="fullCheckedChange"
+          checked-color="#d81e06"
+        >全选</van-checkbox>
+      </van-submit-bar>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import mix from '@/mixins/tabs/cart.js'
+
+export default class extends wepy.page {
+  mixins = [mix]
+}
+</script>
+
+<style lang="less">
+.empty_cart {
+  font-size: 24rpx;
+  color: #666;
+  padding-top: 200rpx;
+  text-align: center;
+  image {
+    width: 180rpx;
+    height: 180rpx;
+  }
+  > view {
+    margin-top: 20rpx;
+  }
+}
+.cart_contaniner {
+  padding-bottom: 50px;
+}
+.desc {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+  align-items: center;
+  width: 100%;
+  .price {
+    font-size: 14px;
+    color: red;
+    font-weight: bold;
+  }
+}
+.van-card {
+  border-bottom: 1rpx solid #eee;
+  padding-left: 7px !important;
+}
+.thumb {
+  display: flex;
+  align-items: center;
+  width: 118px;
+  image {
+    width: 90px;
+    height: 90px;
+    margin-left: 7px;
+  }
+}
+.van-card__thumb {
+  width: 118px !important;
+}
+.close {
+  background-color: #ff4444;
+  width: 65px;
+  height: 100%;
+  color: white;
+  font-size: 13px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.van-submit-bar__bar {
+  padding-left: 7px !important;
+}
+</style>

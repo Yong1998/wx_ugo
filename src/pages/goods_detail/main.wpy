@@ -1,0 +1,183 @@
+<template>
+  <view class="goods-detail-container">
+    <!-- 商品轮播图区域 -->
+    <swiper indicator-dots autoplay circular>
+      <block wx:for="{{goodsDetail.pics}}" wx:key="index">
+        <swiper-item class="item-pic">
+          <image src="{{item.pics_big}}" @tap="preview({{item.pics_big}})" />
+        </swiper-item>
+      </block>
+    </swiper>
+
+    <!-- 商品信息区域 -->
+    <view class="goods-info">
+      <!-- 价格 名称 运费 -->
+      <view class="box1">
+        <view class="price">￥{{goodsDetail.goods_price}}</view>
+        <view class="goods-name">
+          <view class="left">
+            <text>{{goodsDetail.goods_name}}</text>
+          </view>
+          <view class="right">
+            <van-icon name="star-o" />
+            <view>收藏</view>
+          </view>
+        </view>
+        <view class="yunfei">快递：免运费</view>
+      </view>
+      <!-- 分割线 -->
+      <view class="line"></view>
+      <view class="box2">
+        <view>
+          <text>促销</text>
+          <text>满300减30</text>
+        </view>
+        <view>
+          <text>已选</text>
+          <text>黑色/S/1件</text>
+        </view>
+      </view>
+      <!-- 分割线 -->
+      <view class="line"></view>
+      <view class="box3" @tap="chooseAddress">
+        <view>
+          <text>送至</text>
+          <text>{{addressStr === null ? '请选择收货地址' : addressStr}}</text>
+        </view>
+        <van-icon name="arrow" />
+      </view>
+      <!-- 分割线 -->
+      <view class="line"></view>
+    </view>
+
+    <!-- 商品详情区域 -->
+    <van-tabs active="{{ active }}" class="detailTab">
+      <van-tab title="图文详情">
+        <wxparse data="{{goodsDetail.goods_introduce}}"></wxparse>
+      </van-tab>
+      <van-tab title="规格参数" class="tab2">
+        <block wx:for="{{goodsDetail.attrs}}" wx:key="index">
+          <van-row>
+            <van-col span="10">{{item.attr_name}}</van-col>
+            <van-col span="14">{{item.attr_vals}}</van-col>
+          </van-row>
+        </block>
+      </van-tab>
+    </van-tabs>
+
+    <!-- 商品导航区域 -->
+    <van-goods-action>
+      <van-goods-action-icon icon="chat-o" text="客服" open-type="contact" />
+      <van-goods-action-icon
+        icon="cart-o"
+        text="购物车"
+        info="{{total}}"
+        url="/pages/tabs/cart"
+        link-type="switchTab"
+      />
+      <van-goods-action-button text="加入购物车" type="warning" @tap="addToCart" />
+      <van-goods-action-button text="立即购买" />
+    </van-goods-action>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import mix from '@/mixins/goods_detail/main.js'
+
+export default class extends wepy.page {
+  mixins = [mix]
+}
+</script>
+
+<style lang="less">
+.goods-detail-container {
+  padding-bottom: 50px;
+}
+swiper {
+  height: 750rpx;
+  border-bottom: 1rpx solid #eee;
+  image {
+    width: 100%;
+    height: 100%;
+  }
+}
+.goods-info {
+  .line {
+    border-bottom: 15rpx solid #efefef;
+  }
+  .box1 {
+    padding: 0 10rpx;
+    .price {
+      font-size: 40rpx;
+      font-weight: bold;
+      color: red;
+    }
+    .goods-name {
+      display: flex;
+      justify-content: space-between;
+      .left {
+        font-size: 26rpx;
+        padding-right: 40rpx;
+      }
+      .right {
+        width: 200rpx;
+        text-align: center;
+        border-left: 1px solid #eee;
+        > view {
+          font-size: 20rpx;
+        }
+      }
+    }
+    .yunfei {
+      font-size: 24rpx;
+      color: #666;
+      font-weight: bold;
+      line-height: 80rpx;
+    }
+  }
+  .box2 {
+    font-size: 24rpx;
+    padding: 0 10rpx;
+    > view {
+      line-height: 80rpx;
+      text:nth-child(1) {
+        margin-right: 20rpx;
+      }
+      text:nth-child(2) {
+        color: #666;
+      }
+    }
+  }
+  .box3 {
+    display: flex;
+    justify-content: space-between;
+    font-size: 24rpx;
+    padding: 25rpx 10rpx 25rpx 10rpx;
+    view:nth-child(1) {
+      text:nth-child(1) {
+        margin-right: 20rpx;
+      }
+      text:nth-child(2) {
+        color: #666;
+      }
+    }
+  }
+}
+.detailTab {
+  .tab2 {
+    font-size: 24rpx;
+    .van-row {
+      border-top: 1rpx solid #eee;
+      .van-col {
+        padding: 25rpx 0 25rpx 10rpx;
+      }
+      &:nth-child(1) {
+        border-right: 1rpx solid #eee;
+      }
+    }
+  }
+}
+.van-sticky {
+  z-index: 0 !important;
+}
+</style>
